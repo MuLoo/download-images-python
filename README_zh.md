@@ -1,4 +1,5 @@
 # Image Downloader
+Fork 自: https://github.com/QianyanTech/Image-Downloader
 
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 
