@@ -15,8 +15,11 @@ import shutil
 from urllib.parse import unquote, quote
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import requests
 from concurrent import futures
+import pdb;
 
 g_headers = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -42,12 +45,12 @@ def google_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=
     base_url = "https://www.google.com/search?tbm=isch&hl=en"
     keywords_str = "&q=" + quote(keywords)
     query_url = base_url + keywords_str
-    
+
     if safe_mode is True:
         query_url += "&safe=on"
     else:
         query_url += "&safe=off"
-    
+
     filter_url = "&tbs="
 
     if color is not None:
@@ -55,12 +58,12 @@ def google_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=
             filter_url += "ic:gray%2C"
         else:
             filter_url += "ic:specific%2Cisc:{}%2C".format(color.lower())
-    
+
     if image_type is not None:
         if image_type.lower() == "linedrawing":
             image_type = "lineart"
         filter_url += "itp:{}".format(image_type)
-        
+
     if face_only is True:
         filter_url += "itp:face"
 
@@ -73,7 +76,10 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
     thumb_elements = []
     while True:
         try:
-            thumb_elements = driver.find_elements(By.CLASS_NAME, "rg_i")
+            # wait = WebDriverWait(driver, 10)
+            # wait.until(EC.presence_of_element_located((By.CLASS_NAME, "rg_i")))
+            thumb_elements = driver.find_elements(By.CSS_SELECTOR, ".H8Rx8c > g-img > img")
+            # thumb_elements = driver.find_elements(By.CLASS_NAME, "cC9Rib")
             my_print("Find {} images.".format(len(thumb_elements)), quiet)
             if len(thumb_elements) >= max_number:
                 break
@@ -90,7 +96,7 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
         except Exception as e:
             print("Exception ", e)
             pass
-    
+
     if len(thumb_elements) == 0:
         return []
 
@@ -98,6 +104,7 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
 
     retry_click = []
     for i, elem in enumerate(thumb_elements):
+        # print(thumb_elements[i])
         try:
             if i != 0 and i % 50 == 0:
                 my_print("{} thumbnail clicked.".format(i), quiet)
@@ -108,8 +115,9 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
         except Exception as e:
             print("Error while clicking in thumbnail:", e)
             retry_click.append(elem)
+    my_print("retry 长度：{}".format(len(retry_click)), quiet)
 
-    if len(retry_click) > 0:    
+    if len(retry_click) > 0:
         my_print("Retry some failed clicks ...", quiet)
         for elem in retry_click:
             try:
@@ -117,12 +125,15 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
                     elem.click()
             except Exception as e:
                 print("Error while retrying click:", e)
-    
-    image_elements = driver.find_elements(By.CLASS_NAME, "islib")
+    wait = WebDriverWait(driver, 10)
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".ob5Hkd > a")))
+    image_elements = driver.find_elements(By.CSS_SELECTOR, ".ob5Hkd > a")
     image_urls = list()
     url_pattern = r"imgurl=\S*&amp;imgrefurl"
 
     for image_element in image_elements[:max_number]:
+        # print('image_element 是：{}'.format(image_element))
+        # print(image_element.get_attribute("outerHTML"))
         outer_html = image_element.get_attribute("outerHTML")
         re_group = re.search(url_pattern, outer_html)
         if re_group is not None:
@@ -138,10 +149,10 @@ def bing_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=No
     filter_url = "&qft="
     if face_only is True:
         filter_url += "+filterui:face-face"
-    
+
     if image_type is not None:
         filter_url += "+filterui:photo-{}".format(image_type)
-    
+
     if color is not None:
         if color == "bw" or color == "color":
             filter_url += "+filterui:color2-{}".format(color.lower())
@@ -183,7 +194,7 @@ def bing_get_image_url_using_api(keywords, max_number=10000, face_only=False,
     proxies = None
     if proxy and proxy_type:
         proxies = {"http": "{}://{}".format(proxy_type, proxy),
-                   "https": "{}://{}".format(proxy_type, proxy)}                             
+                   "https": "{}://{}".format(proxy_type, proxy)}
     start = 1
     image_urls = []
     while start <= max_number:
@@ -309,7 +320,7 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
 
 
 def crawl_image_urls(keywords, engine="Google", max_number=10000,
-                     face_only=False, safe_mode=False, proxy=None, 
+                     face_only=False, safe_mode=False, proxy=None,
                      proxy_type="http", quiet=False, browser="chrome_headless", image_type=None, color=None):
     """
     Scrape image urls of keywords from Google Image Search
@@ -350,6 +361,7 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
     if browser != "api":
         browser = str.lower(browser)
         chrome_path = shutil.which("chromedriver")
+        my_print("Chrome Path:  " + chrome_path, quiet)
         chrome_options = webdriver.ChromeOptions()
         if "headless" in browser:
             chrome_options.add_argument("headless")
@@ -360,6 +372,7 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
         if engine == "Google":
             driver.set_window_size(1920, 1080)
             driver.get(query_url)
+            my_print("Query URL是什么:  " + driver.current_url, quiet)
             image_urls = google_image_url_from_webpage(driver, max_number, quiet)
         elif engine == "Bing":
             driver.set_window_size(1920, 1080)

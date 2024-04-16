@@ -19,6 +19,15 @@ Fork 自: https://github.com/QianyanTech/Image-Downloader
 
 ## 3. 用法
 
+需要安装于当前chrome对应的chromedriver版本，下载地址：https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html
+
+下载chromedriver之后，解压缩，并移动到系统PATH目录下，或者将其路径添加到系统PATH环境变量中
+
+```bash
+sudo mv /path/to/chromedriver /usr/local/bin/
+```
+
+
 ### 3.1 图形界面
 
 运行`image_downloader_gui.py`脚本以启动GUI界面
