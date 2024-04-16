@@ -19,7 +19,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import requests
 from concurrent import futures
-import pdb;
 
 g_headers = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -76,10 +75,7 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
     thumb_elements = []
     while True:
         try:
-            # wait = WebDriverWait(driver, 10)
-            # wait.until(EC.presence_of_element_located((By.CLASS_NAME, "rg_i")))
             thumb_elements = driver.find_elements(By.CSS_SELECTOR, ".H8Rx8c > g-img > img")
-            # thumb_elements = driver.find_elements(By.CLASS_NAME, "cC9Rib")
             my_print("Find {} images.".format(len(thumb_elements)), quiet)
             if len(thumb_elements) >= max_number:
                 break
@@ -125,8 +121,9 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
                     elem.click()
             except Exception as e:
                 print("Error while retrying click:", e)
-    wait = WebDriverWait(driver, 10)
-    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".ob5Hkd > a")))
+    # 用不着等待，因为这个元素是在初始搜索结果页面上的，不是在详情页内。
+    # wait = WebDriverWait(driver, 10)
+    # wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".ob5Hkd > a")))
     image_elements = driver.find_elements(By.CSS_SELECTOR, ".ob5Hkd > a")
     image_urls = list()
     url_pattern = r"imgurl=\S*&amp;imgrefurl"
