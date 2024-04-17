@@ -76,6 +76,9 @@ sudo mv /path/to/chromedriver /usr/local/bin/
   如果打包windows版本，可以使用pyinstaller.
 
 
+#### release
+在release 中，放了一个已经打包好的Mac版本，可以直接下载使用。
+
 ## 许可
 
 + MIT License
