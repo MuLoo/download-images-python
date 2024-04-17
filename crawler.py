@@ -30,7 +30,9 @@ g_headers = {
 }
 
 if getattr(sys, 'frozen', False):
-    bundle_dir = sys._MEIPASS
+    # pyinstaller 打包使用这个，非pyinstaller打包时会报错
+    # bundle_dir = sys._MEIPASS
+    bundle_dir = os.path.dirname(os.path.abspath(__file__))
 else:
     bundle_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -369,7 +371,6 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
         if engine == "Google":
             driver.set_window_size(1920, 1080)
             driver.get(query_url)
-            my_print("Query URL是什么:  " + driver.current_url, quiet)
             image_urls = google_image_url_from_webpage(driver, max_number, quiet)
         elif engine == "Bing":
             driver.set_window_size(1920, 1080)

@@ -51,6 +51,31 @@ usage: image_downloader.py [-h] [--engine {Google,Bing,Baidu}]
                            keywords
 ```
 
+
+### 二次开发者的提示
+
+启动项目前，请确保已经安装了chromedriver，添加到系统环境变量中，比如在Linux系统中，可以将chromedriver放到`/usr/local/bin`目录下
+
+```bash
+sudo mv /path/to/chromedriver /usr/local/bin/
+```
+
+如果无法确定最新的chrome和chromedriver，请在[这里](https://googlechromelabs.github.io/chrome-for-testing/#stable) 下载。
+
+正确设置了 chromedriver后，在终端输入 `chromedriver --help`，如果出现帮助信息，则表明设置成功.
+
+
+#### 打包
+因为目前我只打包了mac环境，使用的是py2app.
+
+  ```bash
+  pip install -U py2app
+  python setup.py py2app
+  ```
+
+  如果打包windows版本，可以使用pyinstaller.
+
+
 ## 许可
 
 + MIT License
