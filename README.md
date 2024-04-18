@@ -63,6 +63,8 @@ sudo mv /path/to/chromedriver /usr/local/bin/
 如果无法确定最新的chrome和chromedriver，请在[这里](https://googlechromelabs.github.io/chrome-for-testing/#stable) 下载。
 
 正确设置了 chromedriver后，在终端输入 `chromedriver --help`，如果出现帮助信息，则表明设置成功.
+在代码中，目前是判断了在macos并且非开发环境时，指定了chromedriver路径为`/usr/local/bin/chromedriver`.
+其他情况下，则使用 `shutil.which("chromedriver")` 获取。
 
 
 #### 打包
@@ -74,6 +76,12 @@ sudo mv /path/to/chromedriver /usr/local/bin/
   ```
 
   如果打包windows版本，可以使用pyinstaller.
+
+  #### TODO
+  - [ ] 每次chromium更新后，与chromedriver版本不匹配，会导致无法启动，需要手动更新chromedriver. 需要自动处理这个问题。参考[这个包](shutil.which("chromedriver"))
+  - [ ] 在windows环境下打包
+
+
 
 
 #### release

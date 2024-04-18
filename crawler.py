@@ -86,7 +86,8 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
             thumb_elements_old = thumb_elements
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(2)
-            show_more = driver.find_elements(By.CLASS_NAME, "mye4qd")
+            # show_more = driver.find_elements(By.CLASS_NAME, "mye4qd")
+            show_more = driver.find_elements(By.CSS_SELECTOR, ".JVy8Bc > a")
             if len(show_more) == 1 and show_more[0].is_displayed() and show_more[0].is_enabled():
                 my_print("Click show_more button.", quiet)
                 show_more[0].click()
@@ -359,8 +360,15 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
 
     if browser != "api":
         browser = str.lower(browser)
-        chrome_path = shutil.which("chromedriver")
-        my_print("Chrome Path:  " + chrome_path, quiet)
+        # 如果是mac系统,并且是开发环境下
+        if sys.platform == "darwin" and getattr(sys, 'frozen', False):
+            chrome_path = '/usr/local/bin/chromedriver'
+        else:
+            chrome_path = shutil.which("chromedriver")
+        if chrome_path is None:
+            my_print("ChromeDriver is not found in your system. Please install ChromeDriver first.", quiet)
+            return
+        my_print("Chrome Path:  " + str(chrome_path), quiet)
         chrome_options = webdriver.ChromeOptions()
         if "headless" in browser:
             chrome_options.add_argument("headless")
